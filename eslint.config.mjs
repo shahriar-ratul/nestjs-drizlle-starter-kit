@@ -1,14 +1,14 @@
-import eslint from "@eslint/js";
-import stylisticTs from "@stylistic/eslint-plugin-ts";
-import tsParser from "@typescript-eslint/parser";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import eslintPluginPrettier from "eslint-plugin-prettier";
-import simpleImportSort from "eslint-plugin-simple-import-sort";
-import tseslint from "typescript-eslint";
-import airbnbConfig from "eslint-config-airbnb-base";
+import eslint from '@eslint/js';
+import stylisticTs from '@stylistic/eslint-plugin-ts';
+import tsParser from '@typescript-eslint/parser';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import tseslint from 'typescript-eslint';
+import airbnbConfig from 'eslint-config-airbnb-base';
 export default [
   {
     ignores: [
+      "drizzle.config.ts",
       "**/node_modules/*",
       "**/test-results/*",
       "**/coverage/*",
@@ -17,7 +17,16 @@ export default [
       "**/test/*",
       "**/dist/*",
       "**/build/*",
-    ],
+      // "**/test/*.spec.ts",
+      "*.spec.ts",
+      "*.e2e-spec.ts",
+      "**/test/*.e2e-spec.ts",
+    ]
+  },
+    eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintPluginPrettierRecommended,
+  {
     files: ["**/*.js", "**/*.ts", "**/*.tsx", "**/*.jsx"],
     plugins: {
       "@stylistic/ts": stylisticTs,
@@ -34,21 +43,20 @@ export default [
       },
     },
     rules: {
-      ...eslintPluginPrettier.configs.recommended.rules,
-      "@stylistic/ts/comma-dangle": ["error", "always-multiline"],
-      "simple-import-sort/imports": "error",
-      "simple-import-sort/exports": "error",
-      "airbnb-base/arrow-body-style": "off",
       "prettier/prettier": [
         "error",
+        {},
         {
-          singleQuote: true,
-          trailingComma: "all",
-        },
+          "usePrettierrc": true,
+        }
       ],
+      "no-unused-vars": "off",
+      "simple-import-sort/exports": "error",
+      "airbnb-base/arrow-body-style": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
     },
   },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  eslintPluginPrettierRecommended,
+  
+
 ];
