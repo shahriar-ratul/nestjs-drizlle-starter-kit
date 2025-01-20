@@ -19,7 +19,14 @@ export const DRIZZLE = Symbol('drizzle-connection');
           connectionString: databaseURL,
           ssl: false,
         });
-        return drizzle(pool, { schema }) as NodePgDatabase<typeof schema>;
+        return drizzle(pool, {
+          schema,
+          logger: {
+            logQuery: (message) => {
+              // console.log(message);
+            },
+          },
+        }) as NodePgDatabase<typeof schema>;
       },
     },
   ],

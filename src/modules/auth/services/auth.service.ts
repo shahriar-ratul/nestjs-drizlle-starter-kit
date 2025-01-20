@@ -152,9 +152,9 @@ export class AuthService {
       throw new NotFoundException('Admin not found');
     }
 
-    const rolePermissions = item.roles.map((role) =>
-      role.role?.permissions.map((permission) => permission.permission?.slug),
-    );
+    const rolePermissions = item.roles.map((role) => {
+      return role.role?.permissions.map((permission) => permission.permission?.slug);
+    });
 
     const adminPermissions = item.permissions?.map((permission) => permission.permission?.slug);
 
@@ -277,7 +277,12 @@ export class AuthService {
         throw new BadRequestException('User not found');
       }
 
-      return user;
+      const permissions = await this.getPermissions(id);
+
+      return {
+        item: user,
+        permissions: permissions,
+      };
     } catch (error) {
       console.log(error);
       throw new BadRequestException('Invalid Token');

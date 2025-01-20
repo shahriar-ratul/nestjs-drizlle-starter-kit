@@ -1,34 +1,59 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, SetMetadata, Query, Put } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { AbilityGuard } from '@/modules/auth/ability/ability.guard';
+import { ApiResponse } from '@nestjs/swagger';
+import { PageDto } from '@/core/dto/page.dto';
+import { PageOptionsDto } from '@/core/dto/page-options.dto';
+import { Role } from '../drizzle/schema/admin-module.schema';
 
+@UseGuards(JwtAuthGuard)
+@UseGuards(AbilityGuard)
 @Controller({ version: '1', path: 'roles' })
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
-
-  @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.rolesService.create(createRoleDto);
-  }
+  constructor(private readonly _rolesService: RolesService) {}
 
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  @ApiResponse({})
+  @SetMetadata('permissions', ['role.view'])
+  async findAll(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<Role>> {
+    return await this._rolesService.findAll(pageOptionsDto);
+  }
+
+  @Post()
+  @ApiResponse({})
+  @SetMetadata('permissions', ['role.create'])
+  create(@Body() createRoleDto: CreateRoleDto) {
+    return this._rolesService.create(createRoleDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  @ApiResponse({})
+  @SetMetadata('permissions', ['role.view'])
+  async findOne(@Param('id') id: number) {
+    return this._rolesService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(+id, updateRoleDto);
+  @Put(':id')
+  @ApiResponse({})
+  @SetMetadata('permissions', ['role.update'])
+  async update(@Param('id') id: number, @Body() updateRoleDto: UpdateRoleDto) {
+    return this._rolesService.update(id, updateRoleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rolesService.remove(+id);
+  @ApiResponse({})
+  @SetMetadata('permissions', ['role.delete'])
+  async remove(@Param('id') id: number) {
+    return this._rolesService.remove(id);
+  }
+
+  @Post(':id/status')
+  @ApiResponse({})
+  @SetMetadata('permissions', ['role.status'])
+  async changeStatus(@Param('id') id: number) {
+    return this._rolesService.changeStatus(+id);
   }
 }

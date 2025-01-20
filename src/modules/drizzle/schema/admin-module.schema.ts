@@ -115,9 +115,13 @@ export const adminsRelations = relations(admins, ({ one, many }) => ({
 }));
 
 export const rolesRelations = relations(roles, ({ one, many }) => ({
-  roles: many(adminRole),
+  roles: many(adminRole, {
+    relationName: 'roles',
+  }),
   permissions: many(permissionRole),
-  admins: many(adminRole),
+  admins: many(adminRole, {
+    relationName: 'admins',
+  }),
 }));
 
 export const permissionsRelations = relations(permissions, ({ one, many }) => ({
@@ -130,10 +134,12 @@ export const adminRoleRelations = relations(adminRole, ({ one }) => ({
   admin: one(admins, {
     fields: [adminRole.adminId],
     references: [admins.id],
+    relationName: 'admins',
   }),
   role: one(roles, {
     fields: [adminRole.roleId],
     references: [roles.id],
+    relationName: 'roles',
   }),
 }));
 
@@ -141,10 +147,12 @@ export const adminsPermissionRelations = relations(adminPermission, ({ one }) =>
   admin: one(admins, {
     fields: [adminPermission.adminId],
     references: [admins.id],
+    relationName: 'admins',
   }),
   permission: one(permissions, {
     fields: [adminPermission.permissionId],
     references: [permissions.id],
+    relationName: 'permissions',
   }),
 }));
 
@@ -152,10 +160,12 @@ export const permissionRoleRelations = relations(permissionRole, ({ one }) => ({
   permission: one(permissions, {
     fields: [permissionRole.permissionId],
     references: [permissions.id],
+    relationName: 'permissions',
   }),
   role: one(roles, {
     fields: [permissionRole.roleId],
     references: [roles.id],
+    relationName: 'roles',
   }),
 }));
 
@@ -179,5 +189,15 @@ export type AdminWithRoles = typeof admins.$inferSelect & {
   })[];
 };
 export type Role = typeof roles.$inferSelect;
+
+export type RoleWithPermissions = typeof roles.$inferSelect & {
+  permissions: (typeof permissionRole.$inferSelect & {
+    permission: typeof permissions.$inferSelect;
+  })[];
+  admins: (typeof adminRole.$inferSelect & {
+    admin: typeof admins.$inferSelect;
+  })[];
+};
+
 export type Permission = typeof permissions.$inferSelect;
 export type AdminToken = typeof adminToken.$inferSelect;
