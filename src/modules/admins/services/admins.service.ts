@@ -13,7 +13,7 @@ import { UpdateAdminDto } from '../dto/update-admin.dto';
 import { PageDto, PageMetaDto, PageOptionsDto } from './../../../core/dto';
 import { DrizzleDB } from '@/modules/drizzle/types/drizzle.d';
 import { DRIZZLE } from '@/modules/drizzle/drizzle.module';
-import { adminRole, admins } from '@/modules/drizzle/schema/admin-module.schema';
+import { Admin, adminRole, admins, AdminWithRoles } from '@/modules/drizzle/schema/admin-module.schema';
 import { and, desc, eq, inArray, isNull, not, or } from 'drizzle-orm';
 import { asc } from 'drizzle-orm';
 import { like } from 'drizzle-orm';
@@ -38,7 +38,7 @@ export class AdminsService {
     }
 
     const order = query.order || 'asc';
-    const isActive = query.isActive || true;
+    const isActive = query.isActive || undefined;
 
     const dbQuery = this.db
       .select()
@@ -52,7 +52,7 @@ export class AdminsService {
             like(admins.email, `%${search}%`),
             like(admins.phone, `%${search}%`),
           ),
-          eq(admins.isActive, isActive),
+          isActive !== undefined ? eq(admins.isActive, isActive) : undefined,
         ),
       )
       .$dynamic();
@@ -77,7 +77,7 @@ export class AdminsService {
           like(admins.email, `%${search}%`),
           like(admins.phone, `%${search}%`),
         ),
-        eq(admins.isActive, isActive),
+        isActive !== undefined ? eq(admins.isActive, isActive) : undefined,
       ),
       with: {
         createdByAdmin: true,
@@ -120,7 +120,7 @@ export class AdminsService {
   }
 
   async findOne(id: string) {
-    const admin = await this.db.query.admins.findFirst({
+    const admin: AdminWithRoles = await this.db.query.admins.findFirst({
       columns: {
         password: false,
         deleted: false,
@@ -325,6 +325,8 @@ export class AdminsService {
         dob: updateAdminDto.dob ? updateAdminDto.dob : data.dob,
         firstName: updateAdminDto.firstName ? updateAdminDto.firstName : data.firstName,
         lastName: updateAdminDto.lastName ? updateAdminDto.lastName : data.lastName,
+        updatedBy: updateAdminDto.updatedBy ? updateAdminDto.updatedBy : data.updatedBy,
+        updatedAt: new Date(),
       })
       .where(eq(admins.id, id));
 
@@ -393,6 +395,39 @@ export class AdminsService {
     };
   }
 
+  async delete(id: number) {
+    const item: AdminWithRoles = await this.db.query.admins.findFirst({
+      where: eq(admins.id, id),
+      with: {
+        roles: {
+          with: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!item) {
+      throw new HttpException('Admin not found', HttpStatus.BAD_REQUEST);
+    }
+
+    if (item.roles.length > 0) {
+      // superadmin role cannot be deleted
+      const superAdminRole = item.roles.find((role) => role.role.slug === 'superadmin');
+      if (superAdminRole) {
+        throw new HttpException('SuperAdmin role cannot be deleted', HttpStatus.BAD_REQUEST);
+      }
+    }
+
+    // delete admin
+    await this.db.delete(adminRole).where(eq(adminRole.adminId, id));
+    await this.db.delete(admins).where(eq(admins.id, id));
+
+    return {
+      message: 'Admin deleted successfully',
+    };
+  }
+
   async changeStatus(id: number) {
     const admin = await this.db.query.admins.findFirst({
       where: eq(admins.id, id),
@@ -410,6 +445,7 @@ export class AdminsService {
       .update(admins)
       .set({
         isActive: !admin.isActive,
+        updatedAt: new Date(),
       })
       .where(eq(admins.id, id));
 

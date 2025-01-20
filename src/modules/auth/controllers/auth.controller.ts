@@ -26,7 +26,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  register(@Body() registerDto: RegisterDto) {
+  register(@Body() registerDto: RegisterDto): Promise<{ message: string }> {
     return this._authService.register(registerDto);
   }
 

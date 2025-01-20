@@ -11,6 +11,7 @@ import {
   Put,
   UseInterceptors,
   UploadedFile,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { AdminsService } from '../services/admins.service';
 
@@ -80,9 +81,9 @@ export class AdminsController {
     image: Express.Multer.File,
     @Body() createAdminDto: CreateAdminDto,
   ) {
-    if (!image) {
-      throw new Error('Image is required');
-    }
+    // if (!image) {
+    //   throw new UnprocessableEntityException('Image is required');
+    // }
 
     return this._adminsService.create(createAdminDto, image);
   }
@@ -111,7 +112,9 @@ export class AdminsController {
   @ApiResponse({})
   @SetMetadata('permissions', ['admin.delete'])
   async remove(@Param('id') id: number) {
-    return this._adminsService.remove(id);
+    // soft delete
+    // return this._adminsService.remove(id);
+    return this._adminsService.delete(id);
   }
 
   @Post(':id/status')

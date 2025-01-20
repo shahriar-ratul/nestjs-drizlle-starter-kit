@@ -23,7 +23,7 @@ import { ChangePasswordDto } from '../dto/change-password.dto';
 import { Request as TypeRequest } from 'express';
 
 // 1 day in milliseconds
-const EXPIRE_TIME = 1000 * 60 * 60 * 24;
+const EXPIRE_TIME = 1000 * 60 * 60 * 24 * 3;
 @Injectable()
 export class AuthService {
   constructor(
@@ -158,9 +158,6 @@ export class AuthService {
 
     const adminPermissions = item.permissions?.map((permission) => permission.permission?.slug);
 
-    console.log('rolePermissions', rolePermissions);
-    console.log('adminPermissions', adminPermissions);
-
     let permissions: string[] = [];
 
     // Flatten and filter out undefined values from role permissions
@@ -203,7 +200,7 @@ export class AuthService {
     };
 
     const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '1d',
+      expiresIn: '3d',
       secret: process.env.JWT_SECRET,
     });
 
@@ -212,7 +209,9 @@ export class AuthService {
       secret: process.env.JWT_REFRESH_TOKEN_KEY,
     });
 
-    // 1d  = 1 day = 24 hours
+    // 3d = 3 days
+    const expiresIn = EXPIRE_TIME;
+
     let ip = request.headers['x-forwarded-for'] || request.socket.remoteAddress;
 
     // convert ip to string
@@ -247,7 +246,7 @@ export class AuthService {
     return {
       accessToken: token,
       refreshToken: refreshToken,
-      expiresIn: EXPIRE_TIME,
+      expiresIn: expiresIn,
     };
   }
 

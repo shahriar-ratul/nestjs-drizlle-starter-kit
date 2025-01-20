@@ -26,7 +26,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost): void {
     // Log the exception.
     this.logger.error(exception);
-    console.log(exception);
 
     // In certain situations `httpAdapter` might not be available in the
     // constructor method, thus we should resolve it here.

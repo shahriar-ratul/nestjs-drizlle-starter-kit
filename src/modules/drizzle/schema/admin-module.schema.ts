@@ -173,6 +173,11 @@ export const adminTokenRelations = relations(adminToken, ({ one }) => ({
 }));
 
 export type Admin = typeof admins.$inferSelect;
+export type AdminWithRoles = typeof admins.$inferSelect & {
+  roles: (typeof adminRole.$inferSelect & {
+    role: typeof roles.$inferSelect;
+  })[];
+};
 export type Role = typeof roles.$inferSelect;
 export type Permission = typeof permissions.$inferSelect;
 export type AdminToken = typeof adminToken.$inferSelect;
