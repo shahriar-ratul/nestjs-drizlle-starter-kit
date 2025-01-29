@@ -1,5 +1,5 @@
 {
-  "id": "66a78bfc-c080-4a46-80f2-4d3f6159c7ef",
+  "id": "9e6776c4-3c90-43fd-a6be-dcad472515eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -394,8 +394,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "deleted": {
-          "name": "deleted",
+        "is_deleted": {
+          "name": "is_deleted",
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
@@ -584,6 +584,25 @@
           "primaryKey": false,
           "notNull": true
         },
+        "group_order": {
+          "name": "group_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -597,10 +616,49 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_reason": {
+          "name": "deleted_reason",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "permissions_deleted_by_admins_id_fk": {
+          "name": "permissions_deleted_by_admins_id_fk",
+          "tableFrom": "permissions",
+          "tableTo": "admins",
+          "columnsFrom": [
+            "deleted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -649,6 +707,13 @@
           "notNull": false,
           "default": true
         },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -662,10 +727,49 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "is_deleted": {
+          "name": "is_deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_by": {
+          "name": "deleted_by",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_reason": {
+          "name": "deleted_reason",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "roles_deleted_by_admins_id_fk": {
+          "name": "roles_deleted_by_admins_id_fk",
+          "tableFrom": "roles",
+          "tableTo": "admins",
+          "columnsFrom": [
+            "deleted_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

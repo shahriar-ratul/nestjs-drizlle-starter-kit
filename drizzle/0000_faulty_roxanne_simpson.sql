@@ -50,7 +50,7 @@ CREATE TABLE "admins" (
 	"updated_at" timestamp DEFAULT now(),
 	"created_by" integer,
 	"updated_by" integer,
-	"deleted" boolean DEFAULT false,
+	"is_deleted" boolean DEFAULT false,
 	"deleted_at" timestamp,
 	"deleted_by" integer,
 	"deleted_reason" varchar(255),
@@ -71,8 +71,15 @@ CREATE TABLE "permissions" (
 	"name" varchar(255) NOT NULL,
 	"slug" varchar(255) NOT NULL,
 	"group" varchar(255) NOT NULL,
+	"group_order" integer NOT NULL,
+	"order" integer NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	"is_deleted" boolean DEFAULT false,
+	"deleted_at" timestamp,
+	"deleted_by" integer,
+	"deleted_reason" varchar(255)
 );
 --> statement-breakpoint
 CREATE TABLE "roles" (
@@ -82,8 +89,13 @@ CREATE TABLE "roles" (
 	"description" text,
 	"is_default" boolean DEFAULT false,
 	"is_active" boolean DEFAULT true,
+	"order" integer DEFAULT 0 NOT NULL,
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	"is_deleted" boolean DEFAULT false,
+	"deleted_at" timestamp,
+	"deleted_by" integer,
+	"deleted_reason" varchar(255)
 );
 --> statement-breakpoint
 CREATE TABLE "user_tokens" (
@@ -146,6 +158,8 @@ ALTER TABLE "admins" ADD CONSTRAINT "admins_updated_by_admins_id_fk" FOREIGN KEY
 ALTER TABLE "admins" ADD CONSTRAINT "admins_deleted_by_admins_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "permission_role" ADD CONSTRAINT "permission_role_permission_id_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "permission_role" ADD CONSTRAINT "permission_role_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "permissions" ADD CONSTRAINT "permissions_deleted_by_admins_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "roles" ADD CONSTRAINT "roles_deleted_by_admins_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."admins"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_tokens" ADD CONSTRAINT "user_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_tokens" ADD CONSTRAINT "user_tokens_revoked_by_users_id_fk" FOREIGN KEY ("revoked_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "users" ADD CONSTRAINT "users_deleted_by_users_id_fk" FOREIGN KEY ("deleted_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

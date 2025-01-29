@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { PageMetaDtoParameters } from './../interfaces/page-meta-dto-parameters.interface';
 
 export class PageMetaDto {
   @ApiProperty()
@@ -28,4 +27,14 @@ export class PageMetaDto {
     this.hasPreviousPage = Number(pageOptionsDto.page) > 1;
     this.hasNextPage = Number(pageOptionsDto.page) < Math.ceil(this.total / this.limit);
   }
+}
+
+interface PageOptionsDto {
+  page: number;
+  limit: number;
+}
+
+interface PageMetaDtoParameters {
+  pageOptionsDto: PageOptionsDto;
+  total: number;
 }

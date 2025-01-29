@@ -28,13 +28,42 @@ export class RolesService {
     }
 
     const order = query.order || 'asc';
-    const isActive = query.isActive || undefined;
+    let isDeleted: boolean = false;
+    let isActive: boolean | undefined;
+
+    switch (query.isActive) {
+      case 'true':
+        isActive = true;
+        break;
+      case 'false':
+        isActive = false;
+        break;
+      default:
+        isActive = undefined;
+        break;
+    }
+
+    switch (query.isDeleted) {
+      case 'true':
+        isDeleted = true;
+        break;
+      case 'false':
+        isDeleted = false;
+        break;
+      default:
+        isDeleted = false;
+        break;
+    }
 
     const dbQuery = this.db
       .select()
       .from(roles)
       .where(
-        and(or(like(roles.name, `%${search}%`)), isActive !== undefined ? eq(roles.isActive, isActive) : undefined),
+        and(
+          or(like(roles.name, `%${search}%`), like(roles.slug, `%${search}%`), like(roles.description, `%${search}%`)),
+          isActive !== undefined ? eq(roles.isActive, isActive) : undefined,
+          isDeleted !== undefined ? eq(roles.isDeleted, isDeleted) : undefined,
+        ),
       )
       .$dynamic();
 
@@ -45,7 +74,8 @@ export class RolesService {
     const resultQuery = await this.db.query.roles.findMany({
       orderBy: order === 'desc' ? [desc(sort)] : [asc(sort)],
       where: and(
-        or(like(roles.name, `%${search}%`)),
+        or(like(roles.name, `%${search}%`), like(roles.slug, `%${search}%`), like(roles.description, `%${search}%`)),
+        isDeleted !== undefined ? eq(roles.isDeleted, isDeleted) : undefined,
         isActive !== undefined ? eq(roles.isActive, isActive) : undefined,
       ),
       extras: {
@@ -107,7 +137,11 @@ export class RolesService {
         )`.as('permissionCount'),
       },
       with: {
-        permissions: true,
+        permissions: {
+          with: {
+            permission: true,
+          },
+        },
         // admins: true,
       },
     });
@@ -116,7 +150,10 @@ export class RolesService {
       throw new NotFoundException('Role not found');
     }
 
-    return item;
+    return {
+      message: 'Role found successfully',
+      item,
+    };
   }
 
   // add admin
@@ -130,6 +167,15 @@ export class RolesService {
       throw new HttpException('Role already exists ', HttpStatus.BAD_REQUEST);
     }
 
+    const maxOrder = await this.db.query.roles.findFirst({
+      orderBy: desc(roles.order),
+      columns: {
+        order: true,
+      },
+    });
+
+    const order = maxOrder ? maxOrder.order + 1 : 1;
+
     const insertedRole = await this.db
       .insert(roles)
       .values({
@@ -140,6 +186,7 @@ export class RolesService {
         isDefault: createDto.isDefault,
         createdAt: new Date(),
         updatedAt: new Date(),
+        order: order,
       })
       .returning();
 
@@ -162,8 +209,16 @@ export class RolesService {
     const item = await this.db.query.roles.findFirst({
       where: eq(roles.id, id),
       with: {
-        permissions: true,
-        admins: true,
+        permissions: {
+          with: {
+            permission: true,
+          },
+        },
+        // admins: {
+        //   with: {
+        //     admin: true,
+        //   },
+        // },
       },
     });
 
@@ -171,7 +226,10 @@ export class RolesService {
       throw new NotFoundException('Role not found');
     }
 
-    return item;
+    return {
+      message: 'Role found successfully',
+      item,
+    };
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
@@ -224,6 +282,90 @@ export class RolesService {
   }
 
   async remove(id: number) {
+    const item = await this.db.query.roles.findFirst({
+      where: eq(roles.id, id),
+      extras: {
+        adminCount: sql<number>`(
+          SELECT COUNT(*)::int 
+          FROM ${adminRole} ar
+          WHERE ar.role_id = ${roles.id}
+        )`.as('adminCount'),
+        permissionCount: sql<number>`(
+          SELECT COUNT(*)::int 
+          FROM ${permissionRole} pr
+          WHERE pr.role_id = ${roles.id}
+        )`.as('permissionCount'),
+      },
+    });
+
+    if (!item) {
+      throw new HttpException('Role not found', HttpStatus.BAD_REQUEST);
+    }
+
+    if (item.adminCount > 0) {
+      throw new HttpException('Role has admins, cannot be deleted', HttpStatus.BAD_REQUEST);
+    }
+
+    // await this.db.delete(permissionRole).where(eq(permissionRole.roleId, id));
+    // await this.db.delete(roles).where(eq(roles.id, id));
+    await this.db
+      .update(roles)
+      .set({
+        isDeleted: true,
+        deletedAt: new Date(),
+        deletedBy: 1,
+        deletedReason: 'Role deleted',
+        isActive: false,
+      })
+      .where(eq(roles.id, id));
+
+    return {
+      message: 'Role deleted successfully',
+    };
+  }
+
+  async restore(id: number) {
+    const item = await this.db.query.roles.findFirst({
+      where: eq(roles.id, id),
+      extras: {
+        adminCount: sql<number>`(
+          SELECT COUNT(*)::int 
+          FROM ${adminRole} ar
+          WHERE ar.role_id = ${roles.id}
+        )`.as('adminCount'),
+        permissionCount: sql<number>`(
+          SELECT COUNT(*)::int 
+          FROM ${permissionRole} pr
+          WHERE pr.role_id = ${roles.id}
+        )`.as('permissionCount'),
+      },
+    });
+
+    if (!item) {
+      throw new HttpException('Role not found', HttpStatus.BAD_REQUEST);
+    }
+
+    if (item.adminCount > 0) {
+      throw new HttpException('Role has admins, cannot be deleted', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.db
+      .update(roles)
+      .set({
+        isDeleted: false,
+        deletedAt: null,
+        deletedBy: null,
+        deletedReason: null,
+        isActive: true,
+      })
+      .where(eq(roles.id, id));
+
+    return {
+      message: 'Role restored successfully',
+    };
+  }
+
+  async delete(id: number) {
     const item = await this.db.query.roles.findFirst({
       where: eq(roles.id, id),
       extras: {
@@ -324,7 +466,7 @@ export class RolesService {
   // getAllAdmins
   async getAllRoles() {
     const items = await this.db.query.roles.findMany({
-      where: eq(roles.isActive, true),
+      where: and(eq(roles.isActive, true), eq(roles.isDeleted, false)),
       with: {
         permissions: {
           with: {

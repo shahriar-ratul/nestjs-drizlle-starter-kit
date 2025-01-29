@@ -102,6 +102,13 @@ export class AuthService {
   async findAdmin(id: number) {
     const admin = await this.db.query.admins.findFirst({
       where: eq(admins.id, id),
+      columns: {
+        password: false,
+        isDeleted: false,
+        deletedReason: false,
+        deletedAt: false,
+        deletedBy: false,
+      },
     });
 
     if (!admin) {

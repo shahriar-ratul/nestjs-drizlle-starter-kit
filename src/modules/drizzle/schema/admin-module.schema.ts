@@ -25,7 +25,7 @@ export const admins = pgTable('admins', {
   createdBy: integer('created_by').references(() => admins.id),
   updatedBy: integer('updated_by').references(() => admins.id),
 
-  deleted: boolean('deleted').default(false),
+  isDeleted: boolean('is_deleted').default(false),
   deletedAt: timestamp('deleted_at'),
   deletedBy: integer('deleted_by').references(() => admins.id),
   deletedReason: varchar('deleted_reason', { length: 255 }),
@@ -36,8 +36,15 @@ export const permissions = pgTable('permissions', {
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull(),
   group: varchar('group', { length: 255 }).notNull(),
+  groupOrder: integer('group_order').notNull(),
+  order: integer('order').notNull(),
+  isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+  isDeleted: boolean('is_deleted').default(false),
+  deletedAt: timestamp('deleted_at'),
+  deletedBy: integer('deleted_by').references(() => admins.id),
+  deletedReason: varchar('deleted_reason', { length: 255 }),
 });
 
 export const roles = pgTable('roles', {
@@ -47,8 +54,13 @@ export const roles = pgTable('roles', {
   description: text('description'),
   isDefault: boolean('is_default').default(false),
   isActive: boolean('is_active').default(true),
+  order: integer('order').notNull().default(0),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
+  isDeleted: boolean('is_deleted').default(false),
+  deletedAt: timestamp('deleted_at'),
+  deletedBy: integer('deleted_by').references(() => admins.id),
+  deletedReason: varchar('deleted_reason', { length: 255 }),
 });
 
 export const adminRole = pgTable('admin_role', {

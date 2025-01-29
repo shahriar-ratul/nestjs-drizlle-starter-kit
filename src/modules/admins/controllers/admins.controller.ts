@@ -28,6 +28,7 @@ import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Public } from '@/core/decorator/public.decorator';
+import { AdminPageOptionsDto } from '@/core/dto/admin-page-option.dto';
 
 export const storageAdmin = {
   storage: diskStorage({
@@ -65,7 +66,7 @@ export class AdminsController {
     description: 'List all admins',
   })
   @SetMetadata('permissions', ['admin.view'])
-  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+  async findAll(@Query() pageOptionsDto: AdminPageOptionsDto) {
     return await this._adminsService.findAll(pageOptionsDto);
   }
 

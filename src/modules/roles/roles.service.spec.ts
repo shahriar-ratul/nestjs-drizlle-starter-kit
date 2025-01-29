@@ -33,6 +33,8 @@ describe('RolesService', () => {
     search: "",
     sort: "id",
     order: Order.ASC,
+    isActive: undefined,
+    isDeleted: undefined,
   };
 
   beforeEach(async () => {

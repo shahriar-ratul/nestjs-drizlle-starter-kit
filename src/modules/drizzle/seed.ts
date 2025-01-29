@@ -6,9 +6,10 @@ import { faker } from '@faker-js/faker';
 import { permissionSeeds } from './seedData/permission';
 import { adminSeeds } from './seedData/admin';
 import { roleSeeds } from './seedData/role';
-import { eq, inArray, not } from 'drizzle-orm';
+import { desc, eq, inArray, not } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
-import { reset, seed } from 'drizzle-seed';
+import { reset } from 'drizzle-seed';
+import { roles } from './schema/schema';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -111,7 +112,7 @@ async function main() {
 
   // users
   const userIds = await Promise.all(
-    Array(1000)
+    Array(10)
       .fill('')
       .map(async () => {
         const user = await db
@@ -142,12 +143,23 @@ async function main() {
       name: permission.name,
       slug: permission.slug,
       group: permission.group,
+      groupOrder: permission.groupOrder,
+      order: permission.order,
     });
   }
   console.log('Seeding permissions done');
 
   // roles
   for (const role of roleSeeds) {
+    const maxOrder = await db.query.roles.findFirst({
+      orderBy: desc(roles.order),
+      columns: {
+        order: true,
+      },
+    });
+
+    const order = maxOrder ? maxOrder.order + 1 : 1;
+
     const roleInsertData = await db
       .insert(schema.roles)
       .values({
@@ -155,6 +167,7 @@ async function main() {
         slug: role.slug,
         description: role.description,
         isDefault: role.isDefault,
+        order: order,
       })
       .returning();
 
@@ -168,8 +181,6 @@ async function main() {
         await db.insert(schema.permissionRole).values({
           roleId: roleId as number,
           permissionId: permission.id as number,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         });
       }
     }
@@ -305,7 +316,7 @@ async function main() {
   console.log('Seeding admins done');
 
   const adminIds = await Promise.all(
-    Array(1000)
+    Array(10)
       .fill('')
       .map(async () => {
         const admin = await db

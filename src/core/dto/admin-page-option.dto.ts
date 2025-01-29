@@ -1,10 +1,10 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Order } from '../constants';
 import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
-import { Order } from '../constants/order.constant';
+import { Type } from 'class-transformer';
 import { AbstractPageOptionsDto } from './interface/page-options.interface';
 
-export class PageOptionsDto implements AbstractPageOptionsDto {
+export class AdminPageOptionsDto implements AbstractPageOptionsDto {
   @ApiPropertyOptional({ enum: Order, enumName: 'Order', default: Order.ASC })
   @IsEnum(Order)
   @IsOptional()
@@ -48,7 +48,7 @@ export class PageOptionsDto implements AbstractPageOptionsDto {
   @IsOptional()
   readonly isDeleted: string | undefined;
 
-  // get skip(): number {
-  //   return ((this.page ?? 1) - 1) * (this.limit ?? 10);
-  // }
+  @ApiPropertyOptional()
+  @IsOptional()
+  readonly roles: string | undefined;
 }

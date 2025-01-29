@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AdminsService } from './admins.service';
 import { DRIZZLE } from '@/modules/drizzle/drizzle.module';
-import { PageOptionsDto } from '@/core/dto';
 import { Order } from '@/core/constants';
 import { JwtService } from '@nestjs/jwt';
 import { CreateAdminDto } from '../dto/create-admin.dto';
 import { Readable } from 'stream';
 import { UpdateAdminDto } from '../dto/update-admin.dto';
+import { AdminPageOptionsDto } from '@/core/dto/admin-page-option.dto';
 
 describe('AdminsService', () => {
   let service: AdminsService;
@@ -30,12 +30,15 @@ describe('AdminsService', () => {
     verify: jest.fn(),
   };
 
-  const pageOptionsDtoMock: PageOptionsDto = {
+  const pageOptionsDtoMock: AdminPageOptionsDto = {
     limit: 10,
     page: 1,
     search: "",
     sort: "id",
     order: Order.ASC,
+    isActive: undefined,
+    isDeleted: undefined,
+    roles: undefined,
   };
 
   const createAdminDto: CreateAdminDto = {

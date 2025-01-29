@@ -10,15 +10,25 @@ import {
 import { hash } from 'bcrypt';
 import { CreateAdminDto } from '../dto/create-admin.dto';
 import { UpdateAdminDto } from '../dto/update-admin.dto';
-import { PageDto, PageMetaDto, PageOptionsDto } from './../../../core/dto';
+import { PageDto, PageMetaDto } from '@/core/dto';
 import { DrizzleDB } from '@/modules/drizzle/types/drizzle.d';
 import { DRIZZLE } from '@/modules/drizzle/drizzle.module';
-import { Admin, adminRole, admins, AdminWithRoles } from '@/modules/drizzle/schema/admin-module.schema';
-import { and, desc, eq, inArray, isNull, not, or } from 'drizzle-orm';
+import {
+  adminPermission,
+  adminRole,
+  admins,
+  adminToken,
+  AdminWithRoles,
+  permissionRole,
+  permissions,
+  roles,
+} from '@/modules/drizzle/schema/admin-module.schema';
+import { and, desc, eq, inArray, isNull, not, or, exists } from 'drizzle-orm';
 import { asc } from 'drizzle-orm';
 import { like } from 'drizzle-orm';
 import { withPagination } from '@/common/helpers/drizzleHelper';
-import { PgColumn } from 'drizzle-orm/pg-core';
+import { alias, PgColumn } from 'drizzle-orm/pg-core';
+import { AdminPageOptionsDto } from '@/core/dto/admin-page-option.dto';
 
 @Injectable()
 export class AdminsService {
@@ -26,7 +36,7 @@ export class AdminsService {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
 
   // get all admins
-  async findAll(query: PageOptionsDto) {
+  async findAll(query: AdminPageOptionsDto) {
     const limit: number = query.limit || 10;
     const page: number = query.page || 1;
     const search = query.search || '';
@@ -38,7 +48,38 @@ export class AdminsService {
     }
 
     const order = query.order || 'asc';
-    const isActive = query.isActive || undefined;
+    let isDeleted: boolean = false;
+    let isActive: boolean | undefined;
+    let filterRoles: number[] | undefined;
+
+    if (query.roles) {
+      filterRoles = JSON.parse(query.roles);
+      filterRoles = filterRoles?.map((role) => Number(role));
+    }
+
+    switch (query.isActive) {
+      case 'true':
+        isActive = true;
+        break;
+      case 'false':
+        isActive = false;
+        break;
+      default:
+        isActive = undefined;
+        break;
+    }
+
+    switch (query.isDeleted) {
+      case 'true':
+        isDeleted = true;
+        break;
+      case 'false':
+        isDeleted = false;
+        break;
+      default:
+        isDeleted = false;
+        break;
+    }
 
     const dbQuery = this.db
       .select()
@@ -53,9 +94,14 @@ export class AdminsService {
             like(admins.phone, `%${search}%`),
           ),
           isActive !== undefined ? eq(admins.isActive, isActive) : undefined,
+          isDeleted !== undefined ? eq(admins.isDeleted, isDeleted) : undefined,
         ),
       )
       .$dynamic();
+
+    if (filterRoles) {
+      dbQuery.leftJoin(adminRole, eq(admins.id, adminRole.adminId)).where(inArray(adminRole.roleId, filterRoles));
+    }
 
     const total = await this.db.$count(dbQuery);
 
@@ -77,7 +123,16 @@ export class AdminsService {
           like(admins.email, `%${search}%`),
           like(admins.phone, `%${search}%`),
         ),
+        isDeleted !== undefined ? eq(admins.isDeleted, isDeleted) : undefined,
         isActive !== undefined ? eq(admins.isActive, isActive) : undefined,
+        filterRoles && filterRoles.length > 0
+          ? exists(
+              this.db
+                .select()
+                .from(adminRole)
+                .where(and(eq(adminRole.adminId, admins.id), inArray(adminRole.roleId, filterRoles))),
+            )
+          : undefined,
       ),
       with: {
         createdByAdmin: true,
@@ -106,8 +161,6 @@ export class AdminsService {
     // this.logger.log(JSON.stringify(result));
     // this.logger.log(JSON.stringify(resultQuery));
 
-    this.logger.log(JSON.stringify(total), 'total');
-
     const pageMetaDto = new PageMetaDto({
       total: total,
       pageOptionsDto: {
@@ -120,7 +173,7 @@ export class AdminsService {
   }
 
   async findOne(id: string) {
-    const admin: AdminWithRoles = await this.db.query.admins.findFirst({
+    const admin = await this.db.query.admins.findFirst({
       columns: {
         password: false,
         deleted: false,
@@ -196,6 +249,7 @@ export class AdminsService {
         verifiedAt: null,
         verifiedByEmail: false,
         verifiedByPhone: false,
+        isDeleted: false,
       })
       .returning();
 
@@ -384,7 +438,7 @@ export class AdminsService {
     await this.db
       .update(admins)
       .set({
-        deleted: true,
+        isDeleted: true,
         deletedAt: new Date(),
         deletedBy: id,
       })

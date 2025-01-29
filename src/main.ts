@@ -1,12 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config as dotenvConfig } from 'dotenv';
-import { Logger, RequestMethod, ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
+import {
+  ConsoleLogger,
+  INestApplication,
+  Logger,
+  RequestMethod,
+  ValidationPipe,
+  VERSION_NEUTRAL,
+  VersioningType,
+} from '@nestjs/common';
 import { join } from 'path';
 
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
-import * as bodyParser from 'body-parser';
+import bodyParser from 'body-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -22,6 +30,11 @@ async function bootstrap() {
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
+    logger: new ConsoleLogger({
+      json: true,
+      colors: true,
+      depth: 10,
+    }),
   });
 
   app.enableCors({
@@ -43,7 +56,7 @@ async function bootstrap() {
       { path: '/', method: RequestMethod.GET },
       { path: 'docs', method: RequestMethod.GET },
       { path: 'health', method: RequestMethod.GET },
-      { path: 'public/*', method: RequestMethod.GET },
+      { path: 'public/{*splat}', method: RequestMethod.GET },
     ],
   });
 
