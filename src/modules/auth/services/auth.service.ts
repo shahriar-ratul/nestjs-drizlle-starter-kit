@@ -14,7 +14,7 @@ import { TokenService } from '@/modules/auth/services/token.service';
 
 import { Request } from 'express';
 import { Admin, adminRole, admins, adminToken, permissions, roles } from '@/modules/drizzle/schema/admin-module.schema';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, sql } from 'drizzle-orm';
 import { DrizzleDB } from '@/modules/drizzle/types/drizzle';
 import { DRIZZLE } from '@/modules/drizzle/drizzle.module';
 import { ForgotPasswordDto } from '../dto/forgot.dto';
@@ -73,7 +73,7 @@ export class AuthService {
         username: username,
         email: email,
         password: hashedPassword,
-        joinedDate: new Date(),
+        joinedDate: sql`CURRENT_TIMESTAMP`,
         gender: registerDto.gender,
         isActive: true,
       })
@@ -231,7 +231,7 @@ export class AuthService {
         adminId: user.id,
         ip: ip || '',
         userAgent: request.headers['user-agent'] || '',
-        expiresAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+        expiresAt: sql`TIMESTAMP '${new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}'`,
       });
     } catch (error) {
       console.log(error);
@@ -242,7 +242,7 @@ export class AuthService {
       await this.db
         .update(admins)
         .set({
-          lastLogin: new Date(),
+          lastLogin: sql`CURRENT_TIMESTAMP`,
         })
         .where(eq(admins.id, user.id));
     } catch (error) {

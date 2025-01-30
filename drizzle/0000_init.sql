@@ -1,15 +1,15 @@
 CREATE TABLE "admin_permission" (
 	"admin_id" integer,
 	"permission_id" integer,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "admin_role" (
 	"admin_id" integer,
 	"role_id" integer,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "admin_token" (
@@ -19,39 +19,39 @@ CREATE TABLE "admin_token" (
 	"refresh_token" text NOT NULL,
 	"ip" varchar(100) NOT NULL,
 	"user_agent" text NOT NULL,
-	"expires_at" timestamp NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
 	"is_revoked" boolean DEFAULT false,
-	"revoked_at" timestamp,
+	"revoked_at" timestamp with time zone,
 	"revoked_by" integer,
 	"revoked_ip" varchar(100),
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "admins" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"first_name" varchar(255),
 	"last_name" varchar(255),
-	"dob" date,
+	"dob" timestamp with time zone,
 	"phone" varchar(255),
 	"username" varchar(255),
 	"email" varchar(255),
 	"password" varchar(255) NOT NULL,
 	"photo" varchar(255),
-	"joined_date" date DEFAULT now(),
+	"joined_date" timestamp with time zone DEFAULT now(),
 	"gender" varchar(255),
-	"last_login" timestamp,
+	"last_login" timestamp with time zone,
 	"is_verified" boolean DEFAULT false,
-	"verified_at" timestamp,
+	"verified_at" timestamp with time zone,
 	"verified_by_email" boolean DEFAULT false,
 	"verified_by_phone" boolean DEFAULT false,
 	"is_active" boolean DEFAULT true,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
 	"created_by" integer,
 	"updated_by" integer,
 	"is_deleted" boolean DEFAULT false,
-	"deleted_at" timestamp,
+	"deleted_at" timestamp with time zone,
 	"deleted_by" integer,
 	"deleted_reason" varchar(255),
 	CONSTRAINT "admins_phone_unique" UNIQUE("phone"),
@@ -62,8 +62,8 @@ CREATE TABLE "admins" (
 CREATE TABLE "permission_role" (
 	"permission_id" integer,
 	"role_id" integer,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "permissions" (
@@ -74,10 +74,10 @@ CREATE TABLE "permissions" (
 	"group_order" integer NOT NULL,
 	"order" integer NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
 	"is_deleted" boolean DEFAULT false,
-	"deleted_at" timestamp,
+	"deleted_at" timestamp with time zone,
 	"deleted_by" integer,
 	"deleted_reason" varchar(255)
 );
@@ -90,10 +90,10 @@ CREATE TABLE "roles" (
 	"is_default" boolean DEFAULT false,
 	"is_active" boolean DEFAULT true,
 	"order" integer DEFAULT 0 NOT NULL,
-	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now(),
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now(),
 	"is_deleted" boolean DEFAULT false,
-	"deleted_at" timestamp,
+	"deleted_at" timestamp with time zone,
 	"deleted_by" integer,
 	"deleted_reason" varchar(255)
 );

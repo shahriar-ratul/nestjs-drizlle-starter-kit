@@ -188,8 +188,8 @@ export class PermissionsService {
         groupOrder: createDto.groupOrder,
         order: createDto.order,
         isActive: createDto.isActive,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: sql`CURRENT_TIMESTAMP`,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
         isDeleted: false,
         deletedAt: null,
         deletedBy: null,
@@ -276,7 +276,7 @@ export class PermissionsService {
         groupOrder: updatePermissionDto.groupOrder ? updatePermissionDto.groupOrder : data.groupOrder,
         order: updatePermissionDto.order ? updatePermissionDto.order : data.order,
         isActive: updatePermissionDto.isActive ? updatePermissionDto.isActive : data.isActive,
-        updatedAt: new Date(),
+        updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(permissions.id, id));
 
@@ -318,7 +318,7 @@ export class PermissionsService {
       .update(permissions)
       .set({
         isDeleted: true,
-        deletedAt: new Date(),
+        deletedAt: sql`CURRENT_TIMESTAMP`,
         deletedBy: 1,
         deletedReason: 'Deleted by admin',
       })
@@ -446,7 +446,7 @@ export class PermissionsService {
       .update(permissions)
       .set({
         isActive: !item.isActive,
-        updatedAt: new Date(),
+        updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(permissions.id, id));
 

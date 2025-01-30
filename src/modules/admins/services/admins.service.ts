@@ -23,7 +23,7 @@ import {
   permissions,
   roles,
 } from '@/modules/drizzle/schema/admin-module.schema';
-import { and, desc, eq, inArray, isNull, not, or, exists } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, not, or, exists, sql } from 'drizzle-orm';
 import { asc } from 'drizzle-orm';
 import { like } from 'drizzle-orm';
 import { withPagination } from '@/common/helpers/drizzleHelper';
@@ -239,12 +239,12 @@ export class AdminsService {
         password: createPassword,
         isActive: createAdminDto.isActive,
         photo: file ? file.path : null,
-        joinedDate: createAdminDto.joinedDate || new Date(),
+        joinedDate: createAdminDto.joinedDate || sql`CURRENT_TIMESTAMP`,
         dob: createAdminDto.dob || null,
         createdBy: createAdminDto.createdBy || null,
         updatedBy: createAdminDto.createdBy || null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: sql`CURRENT_TIMESTAMP`,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
         isVerified: false,
         verifiedAt: null,
         verifiedByEmail: false,
@@ -380,7 +380,7 @@ export class AdminsService {
         firstName: updateAdminDto.firstName ? updateAdminDto.firstName : data.firstName,
         lastName: updateAdminDto.lastName ? updateAdminDto.lastName : data.lastName,
         updatedBy: updateAdminDto.updatedBy ? updateAdminDto.updatedBy : data.updatedBy,
-        updatedAt: new Date(),
+        updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(admins.id, id));
 
@@ -439,7 +439,7 @@ export class AdminsService {
       .update(admins)
       .set({
         isDeleted: true,
-        deletedAt: new Date(),
+        deletedAt: sql`CURRENT_TIMESTAMP`,
         deletedBy: id,
       })
       .where(eq(admins.id, id));
@@ -499,7 +499,7 @@ export class AdminsService {
       .update(admins)
       .set({
         isActive: !admin.isActive,
-        updatedAt: new Date(),
+        updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(admins.id, id));
 

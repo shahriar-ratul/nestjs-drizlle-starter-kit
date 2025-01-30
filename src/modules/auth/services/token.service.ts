@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { adminToken } from '@/modules/drizzle/schema/admin-module.schema';
 import { DrizzleDB } from '@/modules/drizzle/types/drizzle';
 import { DRIZZLE } from '@/modules/drizzle/drizzle.module';
-import { eq, like, or, and, asc, desc } from 'drizzle-orm';
+import { eq, like, or, and, asc, desc, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { UpdateTokenDto } from '../dto/update-token.dto';
 
@@ -87,7 +87,7 @@ export class TokenService {
       refreshToken: createTokenDto.refresh_token || '',
       ip: createTokenDto.ip || '',
       userAgent: createTokenDto.userAgent || '',
-      expiresAt: createTokenDto.expires_at,
+      expiresAt: sql`TIMESTAMP '${createTokenDto.expires_at}'`,
       adminId: Number(createTokenDto.admin_id),
     });
 
@@ -212,7 +212,7 @@ export class TokenService {
       .set({
         isRevoked: true,
         revokedBy: tokenData.revokedBy || null,
-        revokedAt: new Date(),
+        revokedAt: sql`CURRENT_TIMESTAMP`,
         revokedByIp: ip,
       })
       .where(eq(adminToken.id, tokenData.id))

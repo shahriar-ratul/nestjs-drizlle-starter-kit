@@ -7,6 +7,7 @@ import { CreateAdminDto } from '../dto/create-admin.dto';
 import { Readable } from 'stream';
 import { UpdateAdminDto } from '../dto/update-admin.dto';
 import { AdminPageOptionsDto } from '@/core/dto/admin-page-option.dto';
+import { sql } from 'drizzle-orm';
 
 describe('AdminsService', () => {
   let service: AdminsService;
@@ -49,8 +50,8 @@ describe('AdminsService', () => {
     firstName: 'test',
     lastName: 'test',
     isActive: true,
-    joinedDate: new Date(),
-    dob: new Date(),
+    joinedDate: sql`TIMESTAMP '2024-01-01 00:00:00'`,
+    dob: sql`TIMESTAMP '1990-01-01 00:00:00'`,
     roles: [],
     createdBy: 0
   };

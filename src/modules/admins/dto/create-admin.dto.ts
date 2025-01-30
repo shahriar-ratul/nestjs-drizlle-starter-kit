@@ -12,6 +12,8 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { sql, SQL } from 'drizzle-orm';
+import { Timestamp } from 'rxjs';
 
 export class CreateAdminDto {
   @ApiProperty({
@@ -94,30 +96,30 @@ export class CreateAdminDto {
   @Transform(({ value }) => {
     if (typeof value === 'string') {
       const date = JSON.parse(value);
-      return new Date(date);
+      return sql`TIMESTAMP '${date}'`;
     }
     return value;
   })
   @IsOptional()
   @IsDate()
-  dob: Date;
+  dob: Date | SQL<Timestamp<Date>>;
 
   // joinedDate
   @ApiProperty({
     type: 'string',
-    example: '2024-01-01',
+    example: '2024-01-01 00:00:00',
     description: 'admin joinedDate',
   })
   @Transform(({ value }) => {
     if (typeof value === 'string') {
       const date = JSON.parse(value);
-      return new Date(date);
+      return sql`TIMESTAMP '${date}'`;
     }
     return value;
   })
   @IsOptional()
   @IsDate()
-  joinedDate: Date;
+  joinedDate: Date | SQL<Timestamp<Date>>;
 
   @ApiProperty({
     type: 'array',

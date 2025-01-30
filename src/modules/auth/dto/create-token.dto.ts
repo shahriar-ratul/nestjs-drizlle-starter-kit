@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Timestamp } from 'rxjs';
+import { SQL } from 'drizzle-orm';
 
 export class CreateTokenDto {
   @IsNotEmpty()
@@ -23,5 +25,5 @@ export class CreateTokenDto {
   @Type(() => Date)
   @ApiProperty({ type: Date })
   @IsNotEmpty()
-  expires_at: Date;
+  expires_at: Date | SQL<Timestamp<Date>>;
 }

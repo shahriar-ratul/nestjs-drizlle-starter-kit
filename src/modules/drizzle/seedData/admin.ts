@@ -1,17 +1,19 @@
+import { SQL, sql } from 'drizzle-orm';
+
 export const adminSeeds: Admin[] = [
   {
     email: 'superadmin@admin.com',
     username: 'super_admin',
     password: 'password',
     isActive: true,
-    dob: new Date('1990-01-01'),
+    dob: sql`DATE '1990-01-01'`,
     phone: 'super_admin',
     firstName: 'Super',
     lastName: 'Admin',
     gender: 'male',
-    joinedDate: new Date(),
+    joinedDate: sql`CURRENT_TIMESTAMP`,
     isVerified: true,
-    verifiedAt: new Date(),
+    verifiedAt: sql`CURRENT_TIMESTAMP`,
     verifiedByEmail: true,
     verifiedByPhone: true,
   },
@@ -20,14 +22,14 @@ export const adminSeeds: Admin[] = [
     username: 'admin',
     password: 'password',
     isActive: true,
-    dob: new Date('1990-01-01'),
+    dob: sql`DATE '1990-01-01'`,
     phone: 'admin',
     firstName: 'Admin',
     lastName: 'Admin',
     gender: 'male',
-    joinedDate: new Date(),
+    joinedDate: sql`CURRENT_TIMESTAMP`,
     isVerified: true,
-    verifiedAt: new Date(),
+    verifiedAt: sql`CURRENT_TIMESTAMP`,
     verifiedByEmail: true,
     verifiedByPhone: true,
   },
@@ -36,14 +38,14 @@ export const adminSeeds: Admin[] = [
     username: 'editor',
     password: 'password',
     isActive: true,
-    dob: new Date('1990-01-01'),
+    dob: sql`DATE '1990-01-01'`,
     phone: 'editor',
     firstName: 'Editor',
     lastName: 'Editor',
     gender: 'male',
-    joinedDate: new Date(),
+    joinedDate: sql`CURRENT_TIMESTAMP`,
     isVerified: true,
-    verifiedAt: new Date(),
+    verifiedAt: sql`CURRENT_TIMESTAMP`,
     verifiedByEmail: true,
     verifiedByPhone: true,
   },
@@ -52,14 +54,14 @@ export const adminSeeds: Admin[] = [
     username: 'user',
     password: 'password',
     isActive: true,
-    dob: new Date('1990-01-01'),
+    dob: sql`DATE '1990-01-01'`,
     phone: 'user',
     firstName: 'User',
     lastName: 'User',
     gender: 'male',
-    joinedDate: new Date(),
+    joinedDate: sql`CURRENT_TIMESTAMP`,
     isVerified: true,
-    verifiedAt: new Date(),
+    verifiedAt: sql`CURRENT_TIMESTAMP`,
     verifiedByEmail: true,
     verifiedByPhone: true,
   },
@@ -68,16 +70,16 @@ export const adminSeeds: Admin[] = [
 interface Admin {
   firstName: string;
   lastName: string;
-  dob: Date;
+  dob: SQL<unknown>;
   phone: string;
   email: string;
   gender: string;
-  joinedDate: Date;
+  joinedDate: SQL<unknown>;
   username: string;
   password: string;
   isActive: boolean;
   isVerified: boolean;
-  verifiedAt: Date;
+  verifiedAt: SQL<unknown>;
   verifiedByEmail: boolean;
   verifiedByPhone: boolean;
 }

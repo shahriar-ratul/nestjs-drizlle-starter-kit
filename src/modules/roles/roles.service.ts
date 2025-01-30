@@ -184,8 +184,8 @@ export class RolesService {
         description: createDto.description,
         isActive: createDto.isActive,
         isDefault: createDto.isDefault,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: sql`CURRENT_TIMESTAMP`,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
         order: order,
       })
       .returning();
@@ -261,7 +261,7 @@ export class RolesService {
         description: updateRoleDto.description ? updateRoleDto.description : data.description,
         isActive: updateRoleDto.isActive ? updateRoleDto.isActive : data.isActive,
         isDefault: updateRoleDto.isDefault ? updateRoleDto.isDefault : data.isDefault,
-        updatedAt: new Date(),
+        updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(roles.id, id));
 
@@ -312,7 +312,7 @@ export class RolesService {
       .update(roles)
       .set({
         isDeleted: true,
-        deletedAt: new Date(),
+        deletedAt: sql`CURRENT_TIMESTAMP`,
         deletedBy: 1,
         deletedReason: 'Role deleted',
         isActive: false,
@@ -411,7 +411,7 @@ export class RolesService {
       .update(roles)
       .set({
         isActive: !item.isActive,
-        updatedAt: new Date(),
+        updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(roles.id, id));
 
@@ -467,13 +467,13 @@ export class RolesService {
   async getAllRoles() {
     const items = await this.db.query.roles.findMany({
       where: and(eq(roles.isActive, true), eq(roles.isDeleted, false)),
-      with: {
-        permissions: {
-          with: {
-            permission: true,
-          },
-        },
-      },
+      // with: {
+      //   permissions: {
+      //     with: {
+      //       permission: true,
+      //     },
+      //   },
+      // },
     });
 
     return {

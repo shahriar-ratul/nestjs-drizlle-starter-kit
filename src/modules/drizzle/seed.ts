@@ -10,6 +10,7 @@ import { desc, eq, inArray, not } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import { reset } from 'drizzle-seed';
 import { roles } from './schema/schema';
+import { sql } from 'drizzle-orm';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -126,8 +127,8 @@ async function main() {
             username: await makeUserUniqueUsername(),
             email: await makeUserUniqueEmail(),
             password: await bcrypt.hash('password', 15),
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: sql`CURRENT_TIMESTAMP`,
+            updatedAt: sql`CURRENT_TIMESTAMP`,
           })
           .returning();
         console.log(user);
@@ -212,8 +213,8 @@ async function main() {
         await db.insert(schema.permissionRole).values({
           roleId: roleId as number,
           permissionId: permission.id as number,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: sql`CURRENT_TIMESTAMP`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
         });
       }
     }
@@ -230,19 +231,19 @@ async function main() {
       .values({
         firstName: admin.firstName,
         lastName: admin.lastName,
-        dob: new Date(admin.dob),
+        dob: admin.dob,
         phone: admin.phone,
         username: admin.username,
         email: admin.email,
         password: await bcrypt.hash('password', 15),
         gender: admin.gender,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: sql`CURRENT_TIMESTAMP`,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
         isVerified: admin.isVerified,
         createdBy: null,
         updatedBy: null,
         isActive: admin.isActive,
-        verifiedAt: admin.verifiedAt,
+        verifiedAt: admin.verifiedAt || sql`CURRENT_TIMESTAMP`,
         verifiedByEmail: admin.verifiedByEmail,
         verifiedByPhone: admin.verifiedByPhone,
       })
@@ -259,8 +260,8 @@ async function main() {
         await db.insert(schema.adminRole).values({
           adminId: adminData.id as number,
           roleId: superAdminRole.id as number,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: sql`CURRENT_TIMESTAMP`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
         });
       }
     }
@@ -274,8 +275,8 @@ async function main() {
         await db.insert(schema.adminRole).values({
           adminId: adminData.id as number,
           roleId: adminRole.id as number,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: sql`CURRENT_TIMESTAMP`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
         });
       }
     }
@@ -289,8 +290,8 @@ async function main() {
         await db.insert(schema.adminRole).values({
           adminId: adminData.id as number,
           roleId: editorRole.id as number,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: sql`CURRENT_TIMESTAMP`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
         });
       }
     }
@@ -304,8 +305,8 @@ async function main() {
         await db.insert(schema.adminRole).values({
           adminId: adminData.id as number,
           roleId: userRole.id as number,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: sql`CURRENT_TIMESTAMP`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
         });
       }
     }
@@ -330,13 +331,13 @@ async function main() {
             username: await makeAdminUniqueUsername(),
             email: await makeAdminUniqueEmail(),
             password: await bcrypt.hash('password', 15),
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: sql`CURRENT_TIMESTAMP`,
+            updatedAt: sql`CURRENT_TIMESTAMP`,
             createdBy: null,
             updatedBy: null,
             isActive: true,
             isVerified: true,
-            verifiedAt: new Date(),
+            verifiedAt: sql`CURRENT_TIMESTAMP`,
             verifiedByEmail: true,
             verifiedByPhone: true,
           })
@@ -354,8 +355,8 @@ async function main() {
           await db.insert(schema.adminRole).values({
             adminId: adminData.id as number,
             roleId: userRole.id as number,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: sql`CURRENT_TIMESTAMP`,
+            updatedAt: sql`CURRENT_TIMESTAMP`,
           });
         }
 

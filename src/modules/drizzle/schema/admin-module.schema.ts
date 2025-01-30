@@ -5,28 +5,28 @@ export const admins = pgTable('admins', {
   id: serial('id').primaryKey(),
   firstName: varchar('first_name', { length: 255 }),
   lastName: varchar('last_name', { length: 255 }),
-  dob: date('dob'),
+  dob: timestamp('dob', { withTimezone: true }),
   phone: varchar('phone', { length: 255 }).unique(),
   username: varchar('username', { length: 255 }).unique(),
   email: varchar('email', { length: 255 }).unique(),
   password: varchar('password', { length: 255 }).notNull(),
   photo: varchar('photo', { length: 255 }),
-  joinedDate: date('joined_date').defaultNow(),
+  joinedDate: timestamp('joined_date', { withTimezone: true }).defaultNow(),
   gender: varchar('gender', { length: 255 }),
-  lastLogin: timestamp('last_login'),
+  lastLogin: timestamp('last_login', { withTimezone: true }),
   isVerified: boolean('is_verified').default(false),
-  verifiedAt: timestamp('verified_at'),
+  verifiedAt: timestamp('verified_at', { withTimezone: true }),
   verifiedByEmail: boolean('verified_by_email').default(false),
   verifiedByPhone: boolean('verified_by_phone').default(false),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 
   createdBy: integer('created_by').references(() => admins.id),
   updatedBy: integer('updated_by').references(() => admins.id),
 
   isDeleted: boolean('is_deleted').default(false),
-  deletedAt: timestamp('deleted_at'),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   deletedBy: integer('deleted_by').references(() => admins.id),
   deletedReason: varchar('deleted_reason', { length: 255 }),
 });
@@ -39,10 +39,10 @@ export const permissions = pgTable('permissions', {
   groupOrder: integer('group_order').notNull(),
   order: integer('order').notNull(),
   isActive: boolean('is_active').notNull().default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
   isDeleted: boolean('is_deleted').default(false),
-  deletedAt: timestamp('deleted_at'),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   deletedBy: integer('deleted_by').references(() => admins.id),
   deletedReason: varchar('deleted_reason', { length: 255 }),
 });
@@ -55,10 +55,10 @@ export const roles = pgTable('roles', {
   isDefault: boolean('is_default').default(false),
   isActive: boolean('is_active').default(true),
   order: integer('order').notNull().default(0),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
   isDeleted: boolean('is_deleted').default(false),
-  deletedAt: timestamp('deleted_at'),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   deletedBy: integer('deleted_by').references(() => admins.id),
   deletedReason: varchar('deleted_reason', { length: 255 }),
 });
@@ -66,15 +66,15 @@ export const roles = pgTable('roles', {
 export const adminRole = pgTable('admin_role', {
   adminId: integer('admin_id').references(() => admins.id),
   roleId: integer('role_id').references(() => roles.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
 
 export const adminPermission = pgTable('admin_permission', {
   adminId: integer('admin_id').references(() => admins.id),
   permissionId: integer('permission_id').references(() => permissions.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
 
 export const adminToken = pgTable('admin_token', {
@@ -84,20 +84,20 @@ export const adminToken = pgTable('admin_token', {
   refreshToken: text('refresh_token').notNull(),
   ip: varchar('ip', { length: 100 }).notNull(),
   userAgent: text('user_agent').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   isRevoked: boolean('is_revoked').default(false),
-  revokedAt: timestamp('revoked_at'),
+  revokedAt: timestamp('revoked_at', { withTimezone: true }),
   revokedBy: integer('revoked_by').references(() => admins.id),
   revokedByIp: varchar('revoked_ip', { length: 100 }),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
 
 export const permissionRole = pgTable('permission_role', {
   permissionId: integer('permission_id').references(() => permissions.id),
   roleId: integer('role_id').references(() => roles.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
 
 export const adminsRelations = relations(admins, ({ one, many }) => ({
