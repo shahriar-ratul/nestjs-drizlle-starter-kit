@@ -1,6 +1,6 @@
 {
-  "id": "10221d26-71f7-47df-b16a-6a1841cfe783",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "701340a5-c549-480c-9ca2-24f3c45bd744",
+  "prevId": "10221d26-71f7-47df-b16a-6a1841cfe783",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -319,7 +319,8 @@
           "name": "joined_date",
           "type": "date",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "gender": {
           "name": "gender",

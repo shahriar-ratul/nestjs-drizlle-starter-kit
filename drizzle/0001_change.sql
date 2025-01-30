@@ -1,0 +1,1 @@
+ALTER TABLE "admins" ALTER COLUMN "joined_date" SET DEFAULT now();

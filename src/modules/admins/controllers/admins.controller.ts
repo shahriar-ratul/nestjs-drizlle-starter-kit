@@ -11,7 +11,6 @@ import {
   Put,
   UseInterceptors,
   UploadedFile,
-  UnprocessableEntityException,
 } from '@nestjs/common';
 import { AdminsService } from '../services/admins.service';
 
@@ -20,7 +19,6 @@ import { CreateAdminDto } from '../dto/create-admin.dto';
 import { UpdateAdminDto } from '../dto/update-admin.dto';
 
 import { AbilityGuard } from '@/modules/auth/ability/ability.guard';
-import { PageDto, PageOptionsDto } from '@/core/dto';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -29,6 +27,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Public } from '@/core/decorator/public.decorator';
 import { AdminPageOptionsDto } from '@/core/dto/admin-page-option.dto';
+import { Admin } from '@/modules/drizzle/schema/admin-module.schema';
 
 export const storageAdmin = {
   storage: diskStorage({

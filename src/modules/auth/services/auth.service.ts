@@ -231,7 +231,7 @@ export class AuthService {
         adminId: user.id,
         ip: ip || '',
         userAgent: request.headers['user-agent'] || '',
-        expiresAt: sql`TIMESTAMP '${new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}'`,
+        expiresAt: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
       });
     } catch (error) {
       console.log(error);

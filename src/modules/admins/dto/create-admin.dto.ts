@@ -9,11 +9,10 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { sql, SQL } from 'drizzle-orm';
-import { Timestamp } from 'rxjs';
 
 export class CreateAdminDto {
   @ApiProperty({
@@ -38,13 +37,13 @@ export class CreateAdminDto {
 
   @ApiProperty({
     type: 'string',
-    example: 'mobile',
-    description: 'admin mobile',
+    example: 'phone',
+    description: 'admin phone',
   })
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(255)
-  mobile: string;
+  phone: string;
 
   @ApiProperty({
     type: 'string',
@@ -81,11 +80,10 @@ export class CreateAdminDto {
     example: 'true',
     description: 'admin isActive',
   })
-  // @IsNotEmpty()
-  @Transform(({ value }) => value.toString() === 'true')
+  @IsNotEmpty()
   @IsOptional()
-  @IsBoolean()
-  isActive: boolean;
+  @IsString()
+  isActive: string;
 
   // dob
   @ApiProperty({
@@ -96,13 +94,13 @@ export class CreateAdminDto {
   @Transform(({ value }) => {
     if (typeof value === 'string') {
       const date = JSON.parse(value);
-      return sql`TIMESTAMP '${date}'`;
+      return new Date(date);
     }
     return value;
   })
   @IsOptional()
   @IsDate()
-  dob: Date | SQL<Timestamp<Date>>;
+  dob: Date;
 
   // joinedDate
   @ApiProperty({
@@ -113,13 +111,13 @@ export class CreateAdminDto {
   @Transform(({ value }) => {
     if (typeof value === 'string') {
       const date = JSON.parse(value);
-      return sql`TIMESTAMP '${date}'`;
+      return new Date(date);
     }
     return value;
   })
   @IsOptional()
   @IsDate()
-  joinedDate: Date | SQL<Timestamp<Date>>;
+  joinedDate: Date;
 
   @ApiProperty({
     type: 'array',
@@ -145,7 +143,25 @@ export class CreateAdminDto {
     example: '1',
     description: 'admin createdBy',
   })
+  @IsNotEmpty()
+  @IsString()
+  createdBy: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '1',
+    description: 'admin updatedBy',
+  })
   @IsOptional()
-  @IsNumber()
-  createdBy: number;
+  @IsString()
+  updatedBy?: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: 'male',
+    description: 'admin gender',
+  })
+  @IsNotEmpty()
+  @IsString()
+  gender: string;
 }

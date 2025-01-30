@@ -29,6 +29,7 @@ import { like } from 'drizzle-orm';
 import { withPagination } from '@/common/helpers/drizzleHelper';
 import { alias, PgColumn } from 'drizzle-orm/pg-core';
 import { AdminPageOptionsDto } from '@/core/dto/admin-page-option.dto';
+import { getImageUrl } from '@/common/helpers/GenerateHelpers';
 
 @Injectable()
 export class AdminsService {
@@ -169,7 +170,18 @@ export class AdminsService {
       },
     });
 
-    return new PageDto(resultQuery, pageMetaDto);
+    const result = resultQuery.map((item) => {
+      return {
+        ...item,
+        photo: item.photo ? getImageUrl(item.photo) : null,
+        createdAt: item.createdAt ? item.createdAt.toISOString() : null,
+        updatedAt: item.updatedAt ? item.updatedAt.toISOString() : null,
+        lastLogin: item.lastLogin ? item.lastLogin.toISOString() : null,
+        verifiedAt: item.verifiedAt ? item.verifiedAt.toISOString() : null,
+      };
+    });
+
+    return new PageDto(result, pageMetaDto);
   }
 
   async findOne(id: string) {
@@ -209,7 +221,16 @@ export class AdminsService {
       throw new NotFoundException('Admin not found');
     }
 
-    return admin;
+    admin.photo = admin.photo ? getImageUrl(admin.photo) : null;
+    admin.createdAt = admin.createdAt ? admin.createdAt.toISOString() : null;
+    admin.updatedAt = admin.updatedAt ? admin.updatedAt.toISOString() : null;
+    admin.lastLogin = admin.lastLogin ? admin.lastLogin.toISOString() : null;
+    admin.verifiedAt = admin.verifiedAt ? admin.verifiedAt.toISOString() : null;
+
+    return {
+      item: admin,
+      message: 'Admin fetched successfully',
+    };
   }
 
   // add admin
@@ -218,7 +239,7 @@ export class AdminsService {
       where: or(
         eq(admins.email, createAdminDto.email || ''),
         eq(admins.username, createAdminDto.username || ''),
-        eq(admins.phone, createAdminDto.mobile || ''),
+        eq(admins.phone, createAdminDto.phone || ''),
       ),
     });
 
@@ -235,18 +256,19 @@ export class AdminsService {
         lastName: createAdminDto.lastName,
         email: createAdminDto.email,
         username: createAdminDto.username,
-        phone: createAdminDto.mobile,
+        phone: createAdminDto.phone,
+        gender: createAdminDto.gender,
         password: createPassword,
-        isActive: createAdminDto.isActive,
-        photo: file ? file.path : null,
-        joinedDate: createAdminDto.joinedDate || sql`CURRENT_TIMESTAMP`,
-        dob: createAdminDto.dob || null,
-        createdBy: createAdminDto.createdBy || null,
-        updatedBy: createAdminDto.createdBy || null,
+        isActive: createAdminDto.isActive === 'true' ? true : false,
+        photo: file ? file.path : undefined,
+        joinedDate: createAdminDto.joinedDate ? new Date(createAdminDto.joinedDate) : undefined,
+        dob: createAdminDto.dob ? new Date(createAdminDto.dob) : undefined,
+        createdBy: Number(createAdminDto.createdBy) || undefined,
+        updatedBy: Number(createAdminDto.updatedBy) || undefined,
         createdAt: sql`CURRENT_TIMESTAMP`,
         updatedAt: sql`CURRENT_TIMESTAMP`,
         isVerified: false,
-        verifiedAt: null,
+        verifiedAt: undefined,
         verifiedByEmail: false,
         verifiedByPhone: false,
         isDeleted: false,
@@ -323,7 +345,7 @@ export class AdminsService {
       where: eq(admins.id, id),
       columns: {
         password: false,
-        deleted: false,
+        isDeleted: false,
         deletedAt: false,
         deletedBy: false,
       },
@@ -336,9 +358,20 @@ export class AdminsService {
       },
     });
 
+    if (!adminItem) {
+      throw new NotFoundException('Admin not found');
+    }
+
+    adminItem.photo = adminItem.photo ? getImageUrl(adminItem.photo) : null;
+    adminItem.createdAt = adminItem.createdAt ? adminItem.createdAt.toISOString() : null;
+    adminItem.updatedAt = adminItem.updatedAt ? adminItem.updatedAt.toISOString() : null;
+    adminItem.lastLogin = adminItem.lastLogin ? adminItem.lastLogin.toISOString() : null;
+    adminItem.verifiedAt = adminItem.verifiedAt ? adminItem.verifiedAt.toISOString() : null;
+
     return {
       item: adminItem,
       permissions: sortedPermissions,
+      message: 'Admin fetched successfully',
     };
   }
 
@@ -351,14 +384,14 @@ export class AdminsService {
       throw new HttpException('Admin Not Found ', HttpStatus.BAD_REQUEST);
     }
 
-    // check if email or username or mobile exists
+    // check if email or username or phone exists
     const checkAdmin = await this.db.query.admins.findFirst({
       where: and(
         not(eq(admins.id, id)),
         or(
           eq(admins.email, updateAdminDto.email || ''),
           eq(admins.username, updateAdminDto.username || ''),
-          eq(admins.phone, updateAdminDto.mobile || ''),
+          eq(admins.phone, updateAdminDto.phone || ''),
         ),
       ),
     });
@@ -372,14 +405,14 @@ export class AdminsService {
       .set({
         email: updateAdminDto.email ? updateAdminDto.email : data.email,
         username: updateAdminDto.username ? updateAdminDto.username : data.username,
-        phone: updateAdminDto.mobile ? updateAdminDto.mobile : data.phone,
+        phone: updateAdminDto.phone ? updateAdminDto.phone : data.phone,
         isActive: updateAdminDto.isActive ? updateAdminDto.isActive : data.isActive,
         photo: file ? file.path : data.photo,
-        joinedDate: updateAdminDto.joinedDate ? updateAdminDto.joinedDate : data.joinedDate,
-        dob: updateAdminDto.dob ? updateAdminDto.dob : data.dob,
+        joinedDate: updateAdminDto.joinedDate ? new Date(updateAdminDto.joinedDate) : data.joinedDate,
+        dob: updateAdminDto.dob ? new Date(updateAdminDto.dob) : data.dob,
         firstName: updateAdminDto.firstName ? updateAdminDto.firstName : data.firstName,
         lastName: updateAdminDto.lastName ? updateAdminDto.lastName : data.lastName,
-        updatedBy: updateAdminDto.updatedBy ? updateAdminDto.updatedBy : data.updatedBy,
+        updatedBy: updateAdminDto.updatedBy ? Number(updateAdminDto.updatedBy) : data.updatedBy,
         updatedAt: sql`CURRENT_TIMESTAMP`,
       })
       .where(eq(admins.id, id));

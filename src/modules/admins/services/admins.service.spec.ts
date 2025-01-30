@@ -46,14 +46,15 @@ describe('AdminsService', () => {
     email: 'test@test.com',
     username: 'test',
     password: 'test',
-    mobile: '1234567890',
+    phone: '1234567890',
     firstName: 'test',
     lastName: 'test',
-    isActive: true,
-    joinedDate: sql`TIMESTAMP '2024-01-01 00:00:00'`,
-    dob: sql`TIMESTAMP '1990-01-01 00:00:00'`,
+    isActive: "true",
+    joinedDate: new Date('2024-01-01 00:00:00'),
+    dob: new Date('1990-01-01 00:00:00'),
     roles: [],
-    createdBy: 0
+    createdBy: "0",
+    gender: "male",
   };
 
   const image: Express.Multer.File = {
@@ -73,7 +74,7 @@ describe('AdminsService', () => {
     email: 'test@test.com',
     username: 'test',
     password: 'test',
-    mobile: '1234567890',
+    phone: '1234567890',
     firstName: 'test',
     lastName: 'test',
   };
